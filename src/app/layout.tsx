@@ -24,10 +24,22 @@ const bungeeShade = Bungee_Shade({
   weight: "400",
 });
 
+// Favicon set from the favicon generator; files live in public/.
 export const metadata: Metadata = {
   title: "CHARTMAKER — chord chart transposer",
   description:
     "Write lead sheets in Roman numeral syntax, transpose live between 12 keys, export print-ready PDFs.",
+  icons: {
+    icon: [
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "48x48" },
+    ],
+    shortcut: ["/favicon.ico"],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  appleWebApp: { title: "Chartmaker" },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

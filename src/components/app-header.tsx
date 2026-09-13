@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { BookOpen } from "lucide-react";
 import { signOut } from "@/app/actions/charts";
 
@@ -8,8 +9,18 @@ export function AppHeader() {
     <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 bg-background px-4 dark:border-zinc-800">
       <Link
         href="/"
-        className="font-(family-name:--font-bungee-shade) text-2xl"
+        className="flex items-center gap-2 font-(family-name:--font-bungee-shade) text-2xl"
       >
+        {/* unoptimized: next/image refuses SVG unless globally allowed, and
+            this 501px raster needs no optimization at 28px display size. */}
+        <Image
+          src="/favicon.svg"
+          alt=""
+          width={28}
+          height={28}
+          unoptimized
+          className="rounded"
+        />
         CHARTMAKER
       </Link>
       <nav className="flex items-center gap-4 text-sm">
