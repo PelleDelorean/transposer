@@ -60,6 +60,11 @@ export async function saveChart(
     title: input.title.trim() || "Untitled chart",
     original_key: input.original_key,
     content: input.content,
+    // Normalize: empty string means "use the default" (null).
+    chord_color:
+      input.chord_color && /^#[0-9a-fA-F]{6}$/.test(input.chord_color)
+        ? input.chord_color
+        : null,
     is_public: input.is_public,
     user_id: user.id,
   };

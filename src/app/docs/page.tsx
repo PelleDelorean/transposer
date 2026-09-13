@@ -131,9 +131,7 @@ const sections = [
       <>
         <p>
           Put chords in square brackets directly after the syllable or word
-          they belong to — the chord is rendered above that word. Switch the
-          editor to <strong>Lyrics mode</strong> to see the chord-over-lyric
-          layout.
+          they belong to — the chord is rendered above that word.
         </p>
         <Code>My song[I] has not a lot of[iv] lines[VI]</Code>
         <p>
@@ -151,19 +149,85 @@ const sections = [
     body: (
       <>
         <p>
-          Start a line with <Code>|</Code> and separate bars with pipes. Any
-          other line is treated as a section label or free text and passes
-          through untouched.
+          Start a line with <Code>|</Code> and separate bars with pipes. Chords
+          within two delimiters belong to the same bar. Any other line is
+          treated as a section label or free text and passes through
+          untouched.
         </p>
         <Code>| I | vi | IIdim | IV |</Code>
         <p>
-          The <strong>Grid / Lyrics</strong> toggle in the editor only changes
-          how the same markup is <em>displayed</em> — your chart text is never
-          modified. <strong>Grid</strong> shows a chords-only view (every line
-          reduced to its chord sequence, with section labels kept for
-          structure). <strong>Lyrics</strong> shows chords positioned above
-          the words they belong to. The chosen mode is also used when
-          exporting the chart as a PDF.
+          <strong>You control the bar widths.</strong> The spacing you type
+          between a chord and the next <Code>|</Code> — one tab, two tabs, or
+          spaces — is mirrored exactly in the preview and the PDF (tabs expand
+          to 4-column stops). Keep your delimiters aligned across rows to get
+          evenly sized bars; the renderer never re-normalizes them. In the
+          editor, <Code>Tab</Code> inserts spaces and{" "}
+          <Code>Shift+Tab</Code> removes them, across the whole selection when
+          multiple lines are highlighted. If a transposed chord is longer than
+          the space you allotted, that bar widens slightly; everything else
+          stays put.
+        </p>
+        <Code>| I          | vi         |</Code>
+        <Code>| IV         | V          |</Code>
+        <p>
+          The <Code>|</Code> delimiters are kept in the preview and the PDF —
+          they make bar boundaries easy to scan.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "mixing",
+    heading: "Mixing formats",
+    body: (
+      <>
+        <p>
+          Grid lines and lyric lines can be combined freely within one chart —
+          write chords-only sections with pipes, sung sections with brackets,
+          or interleave both. Lines without pipes or brackets (like{" "}
+          <strong>Verse</strong> or <strong>Chorus</strong>) pass through as
+          section labels. What you see in the preview is exactly what the PDF
+          export produces.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "emphasis",
+    heading: "Text formatting",
+    body: (
+      <>
+        <p>
+          Use standard asterisk markup for emphasis anywhere in lyrics, labels
+          or free text — in the preview and the PDF:
+        </p>
+        <ul className="list-disc pl-5 text-sm">
+          <li>
+            <Code>**bold**</Code> — bold
+          </li>
+          <li>
+            <Code>*italic*</Code> — italic
+          </li>
+          <li>
+            <Code>***bold italic***</Code> — bold italic
+          </li>
+        </ul>
+        <p>
+          Unpaired asterisks pass through as plain text. Formatting survives
+          transposition and saving.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "appearance",
+    heading: "Chord color",
+    body: (
+      <>
+        <p>
+          Use the color picker in the editor toolbar to set the chord color.
+          The default is black. The color is saved with the chart and applied
+          to both the preview and the PDF export.
         </p>
       </>
     ),

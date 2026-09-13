@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Geist, IBM_Plex_Mono } from "next/font/google";
+import { Geist, IBM_Plex_Mono, Bungee_Shade } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,6 +17,13 @@ const plexMono = IBM_Plex_Mono({
   style: ["normal", "italic"],
 });
 
+// Display font for the app title.
+const bungeeShade = Bungee_Shade({
+  variable: "--font-bungee-shade",
+  subsets: ["latin"],
+  weight: "400",
+});
+
 export const metadata: Metadata = {
   title: "CHARTMAKER — chord chart transposer",
   description:
@@ -27,7 +34,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${plexMono.variable} ${bungeeShade.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

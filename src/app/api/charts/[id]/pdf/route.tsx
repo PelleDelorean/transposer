@@ -9,7 +9,7 @@ import { getKey } from "@/lib/music/keys";
 export const runtime = "nodejs";
 
 /**
- * GET /api/charts/[id]/pdf?targetKey=F&mode=grid
+ * GET /api/charts/[id]/pdf?targetKey=F
  * Returns the chart as a print-ready PDF (RLS-enforced via server client).
  */
 export async function GET(
@@ -33,22 +33,23 @@ export async function GET(
 
   const { searchParams } = new URL(request.url);
   const targetKeyParam = searchParams.get("targetKey");
-  const modeParam = searchParams.get("mode");
   const targetKey =
     targetKeyParam && getKey(targetKeyParam) ? targetKeyParam : chart.original_key;
-  const mode = modeParam === "lyrics" ? "lyrics" : "grid";
+  // Optional custom chord color as 6-digit hex (#RRGGBB).
+  const colorParam = searchParams.get("chordColor");
+  const chordColor =
+    colorParam && /^#[0-9a-fA-F]{6}$/.test(colorParam) ? colorParam : undefined;
 
   const result = transposeChart(chart.content, {
     targetKey,
-    mode,
   });
 
   const doc = (
     <ChartPdfDocument
       title={chart.title}
       targetKey={targetKey}
-      mode={mode}
       lines={result.lines}
+      chordColor={chordColor}
     />
   );
 

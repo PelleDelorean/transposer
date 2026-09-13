@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, Font } from "@react-pdf/renderer";
 import type { ChartLine } from "@/lib/music/chartParser";
+import { renderGridRow } from "@/lib/grid";
 import {
   buildChordPieces,
   parseEmphasis,
@@ -43,25 +44,11 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
     marginBottom: 20,
   },
-  barRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 6,
-  },
-  bar: {
-    marginRight: 8,
-    marginBottom: 4,
-    paddingVertical: 2,
-    paddingHorizontal: 8,
-    backgroundColor: "#f2f2f2",
-    fontWeight: 700,
-  },
   lyricBlock: {
     marginBottom: 8,
   },
   chordRow: {
     fontWeight: 700,
-    color: "#0a7d4f",
   },
   section: {
     fontFamily: "Helvetica",
@@ -75,8 +62,9 @@ const styles = StyleSheet.create({
 interface ChartPdfDocumentProps {
   title: string;
   targetKey: string;
-  mode: "grid" | "lyrics";
   lines: ChartLine[];
+  /** Optional custom chord color as hex string. */
+  chordColor?: string;
 }
 
 /** Render emphasis-parsed segments in the given base monospace font. */
@@ -104,6 +92,29 @@ function EmphasisRuns({
 }
 
 /**
+ * Grid line mirroring the user's authored layout: chord tokens replaced
+ * in place, whitespace (tabs/spaces) between delimiters preserved, so
+ * delimiter columns land where the user typed them.
+ */
+function GridLinePdf({ line, chordColor }: { line: ChartLine; chordColor?: string }) {
+  if (!line.bars) return null;
+  const tokens = line.bars.map((b) => b.token || "");
+  const row = renderGridRow(line.raw, tokens);
+  return (
+    <Text
+      style={{
+        fontFamily: MONO,
+        fontWeight: 700,
+        color: chordColor ?? "#000000",
+        marginBottom: 8,
+      }}
+    >
+      {row}
+    </Text>
+  );
+}
+
+/**
  * One lyric line as two rows on a shared monospace character grid.
  * The chord row is space-padded so each chord begins exactly at the
  * character column where its piece of lyric text begins. Emphasis markers
@@ -111,8 +122,10 @@ function EmphasisRuns({
  */
 function LyricLine({
   pieces,
+  chordColor,
 }: {
   pieces: { text: string; chord?: string }[];
+  chordColor?: string;
 }) {
   let offset = 0;
   const chordCells: Array<{ at: number; chord: string }> = [];
@@ -135,7 +148,14 @@ function LyricLine({
 
   return (
     <View style={styles.lyricBlock}>
-      <Text style={styles.chordRow}>{chordRow}</Text>
+      <Text
+        style={[
+          styles.chordRow,
+          { color: chordColor ?? "#000000" },
+        ]}
+      >
+        {chordRow}
+      </Text>
       <Text>
         {runs.map((segs, i) => (
           <EmphasisRuns key={i} segments={segs} />
@@ -170,8 +190,8 @@ function SectionLine({ text }: { text: string }) {
 export function ChartPdfDocument({
   title,
   targetKey,
-  mode,
   lines,
+  chordColor,
 }: Omit<ChartPdfDocumentProps, "originalKey">) {
   registerChartFonts();
   return (
@@ -186,34 +206,11 @@ export function ChartPdfDocument({
 
         {lines.map((line, i) => {
           if (line.type === "grid" && line.bars) {
-            return (
-              <View key={i} style={styles.barRow}>
-                {line.bars.map((bar, j) => (
-                  <Text key={j} style={styles.bar}>
-                    {bar.token || "·"}
-                  </Text>
-                ))}
-              </View>
-            );
+            return <GridLinePdf key={i} line={line} chordColor={chordColor} />;
           }
           if (line.type === "lyric" && line.segments) {
-            // Grid mode: lyric lines collapse to a chords-only row.
-            if (mode === "grid") {
-              const chords = line.segments
-                .map((s) => s.chord?.token)
-                .filter(Boolean) as string[];
-              return chords.length ? (
-                <View key={i} style={styles.barRow}>
-                  {chords.map((c, j) => (
-                    <Text key={j} style={styles.bar}>
-                      {c}
-                    </Text>
-                  ))}
-                </View>
-              ) : null;
-            }
             const pieces = buildChordPieces(line.segments);
-            return <LyricLine key={i} pieces={pieces} />;
+            return <LyricLine key={i} pieces={pieces} chordColor={chordColor} />;
           }
           // Section labels render in natural case with emphasis support;
           // blank lines become spacers.

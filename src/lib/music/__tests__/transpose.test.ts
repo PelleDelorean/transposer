@@ -36,6 +36,16 @@ describe("renderRoman", () => {
     const G = getKey("G")!;
     expect(renderRoman("#iv", G)).toBe("C#m");
   });
+
+  test("lowercase numerals always imply minor without writing m", () => {
+    const C = getKey("C")!;
+    // iii7 -> Em7 (m comes from the numeral, not typed)
+    expect(renderRoman("iii7", C)).toBe("Em7");
+    // iiim7b5 -> Em7b5 (redundant m absorbed, not doubled)
+    expect(renderRoman("iiim7b5", C)).toBe("Em7b5");
+    // imaj7 opts out -> Cmaj7
+    expect(renderRoman("imaj7", C)).toBe("Cmaj7");
+  });
 });
 
 describe("transposeChart", () => {
@@ -107,8 +117,10 @@ describe("transposeChart", () => {
   });
 
   test("mode does not change realized chords", () => {
-    const a = transposeChart("| I |", { targetKey: "F", mode: "grid" });
-    const b = transposeChart("| I |", { targetKey: "F", mode: "lyrics" });
+    // The former grid/lyrics render mode is gone; serialization is
+    // deterministic and identical for identical inputs.
+    const a = transposeChart("| I |", { targetKey: "F" });
+    const b = transposeChart("| I |", { targetKey: "F" });
     expect(a.text).toBe(b.text);
   });
 

@@ -82,9 +82,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center px-6">
-      <div className="mb-8 flex items-center gap-2 text-2xl font-bold">
+      <div className="mb-8 flex items-center gap-2 text-2xl">
         <Music2 className="h-7 w-7" aria-hidden />
-        CHARTMAKER
+        <span className="font-[family-name:var(--font-bungee-shade)]">
+          CHARTMAKER
+        </span>
       </div>
 
       <h1 className="mb-6 text-xl font-semibold">

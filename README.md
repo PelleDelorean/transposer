@@ -26,9 +26,8 @@ Dynamic lead sheet & chord chart manager. Write charts in universal Roman numera
 | `I/iii`, `V/vii` | Slash chords — both chord and bass are Roman numerals and transpose |
 | `Cmaj7`, `Bb/D` | Absolute chords also accepted; transposed by interval from the chart's original key |
 | `My song[I] has not[iv]` | Inline lyric brackets — a chord applies to the word BEFORE the bracket and renders above it |
-| `\| I \| vi \| IIdim \| IV \|` | Grid mode — bar-separated chart lines |
-
-The **Grid / Lyrics** toggle in the editor switches only the *display* of the same markup (chords-only vs. chords above words); your chart text is never modified. The chosen mode also applies to PDF export.
+| `\| I \| vi \| IIdim \| IV \|` | Grid bars — chords within two delimiters form one bar |
+| `**bold**`, `*italic*`, `***both***` | Text formatting in lyrics, labels and free text |
 
 The 12 target keys: C (neutral), F Bb Eb Ab Db (flats), G D A E B F# (sharps). Output spelling always follows the target key's accidental convention.
 
@@ -37,6 +36,7 @@ The 12 target keys: C (neutral), F Bb Eb Ab Db (flats), G D A E B F# (sharps). O
 - `npm run dev` — dev server
 - `npm run build` / `npm start` — production
 - `npm run lint` — ESLint
+- `npm run typecheck` — TypeScript check across all files
 - `npm test` — music engine unit tests
 
 ## Deployment

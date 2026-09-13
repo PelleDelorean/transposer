@@ -7,10 +7,15 @@ create table if not exists public.charts (
   title text not null check (char_length(title) <= 200),
   original_key text not null default 'C',
   content text not null default '',
+  chord_color text check (chord_color is null or chord_color ~ '^#[0-9a-fA-F]{6}$'),
   is_public boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Migration for existing installs: add the chord_color column.
+alter table public.charts add column if not exists chord_color text
+  check (chord_color is null or chord_color ~ '^#[0-9a-fA-F]{6}$');
 
 create index if not exists charts_user_id_idx on public.charts (user_id);
 create index if not exists charts_updated_at_idx on public.charts (updated_at desc);

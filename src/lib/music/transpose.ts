@@ -16,19 +16,15 @@ import { parseAbsoluteChord } from "./chordParser";
 import { getKey, spellDegree, type KeyDef } from "./keys";
 import { intervalTo, spellPitchClassOnLetter, parseNoteName } from "./notes";
 
-export type RenderMode = "grid" | "lyrics";
-
 export interface TransposeOptions {
   /** Target key name ("C", "Bb", "F#", ...). Required. */
   targetKey: string;
   /** Chart's original key, needed to transpose absolute chord tokens. */
   originalKey?: string;
-  /** Render mode. Only affects formatting, not pitch. Default "grid". */
-  mode?: RenderMode;
 }
 
 export interface TransposeResult {
-  /** Transposed chart text in the requested mode. */
+  /** Transposed chart text. */
   text: string;
   /** Lines for structured rendering (preview UI, PDF). */
   lines: ChartLine[];
@@ -44,11 +40,21 @@ export function renderRoman(token: string, key: KeyDef): string {
   // Normalize degree symbols: ° and ø both render as "dim".
   let quality = roman.quality;
   if (quality === "°" || quality === "ø") quality = "dim";
-  // Lowercase numerals imply a minor base unless an explicit quality or a
-  // "maj"/numeric extension says otherwise (e.g. "imaj7" stays major). When
-  // the extension already begins with an "m" (m7b5), don't duplicate it.
-  if (!quality && roman.minorBase && !/^(?:maj|m|[0-9])/.test(roman.extension)) {
-    quality = "m";
+
+  // Lowercase numerals ALWAYS imply a minor base — the "m" comes from the
+  // numeral itself, so the user never writes it: "iii7" -> Em7, "iiim7b5"
+  // -> Em7b5, "ii" -> Dm. Only an explicit "maj" opts out ("imaj7" ->
+  // Cmaj7). If the user did write an "m" ("iim7b5"), it is absorbed into
+  // the minor base rather than duplicated.
+  if (!quality && roman.minorBase) {
+    if (roman.extension.startsWith("maj")) {
+      quality = null; // explicit major opt-out
+    } else {
+      if (roman.extension.startsWith("m")) {
+        roman.extension = roman.extension.slice(1);
+      }
+      quality = "m";
+    }
   }
   const main =
     spellDegree(key, roman.degree, roman.chromatic) +
@@ -113,8 +119,8 @@ function transposeLines(
   });
 }
 
-/** Serialize transposed lines back to text, honoring the render mode. */
-function serialize(lines: ChartLine[], mode: RenderMode): string {
+/** Serialize transposed lines back to text. */
+function serialize(lines: ChartLine[]): string {
   return lines
     .map((line) => {
       if (line.type === "grid" && line.bars) {
@@ -146,10 +152,9 @@ export function transposeChart(content: string, opts: TransposeOptions): Transpo
 
   const parsed = parseChart(content);
   const transposed = transposeLines(parsed, key, semitones);
-  const mode = opts.mode ?? "grid";
 
   return {
-    text: serialize(transposed, mode),
+    text: serialize(transposed),
     lines: transposed,
     key,
   };
