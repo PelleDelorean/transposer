@@ -2,13 +2,13 @@ import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import { signOut } from "@/app/actions/charts";
 
-/** Shared top navigation. */
+/** Shared top navigation. Sticks to the top of the viewport on every page. */
 export function AppHeader() {
   return (
-    <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 bg-background px-4 dark:border-zinc-800">
       <Link
         href="/"
-        className="font-(family-name:--font-bungee-shade) text-xl"
+        className="font-(family-name:--font-bungee-shade) text-2xl"
       >
         CHARTMAKER
       </Link>

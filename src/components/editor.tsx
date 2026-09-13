@@ -209,10 +209,12 @@ export function Editor({ chart }: EditorProps) {
   return (
     // h-dvh + overflow-hidden on md+ bounds the layout to the viewport so
     // the two panes scroll independently; on small screens the panes stack
-    // and the page scrolls normally.
-    <div className="flex min-h-screen flex-col md:h-dvh md:min-h-0 md:overflow-hidden">
-      {/* Sticky toolbar (lighter gray, above pane scrollbars) */}
-      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-zinc-300 bg-zinc-100 px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
+    // and the page scrolls normally. The sticky AppHeader above this div
+    // is h-14, so the editor column fills exactly the remaining viewport.
+    <div className="flex min-h-screen flex-col md:h-[calc(100dvh-3.5rem)] md:min-h-0 md:overflow-hidden">
+      {/* Sticky toolbar (lighter gray, above pane scrollbars). top-14 keeps
+          it clear of the sticky app header on small screens. */}
+      <div className="sticky top-14 z-20 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-zinc-300 bg-zinc-100 px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -272,10 +274,10 @@ export function Editor({ chart }: EditorProps) {
         <button
           onClick={handleSave}
           disabled={saving}
-          className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-50 ${
+          className={`flex w-28 items-center justify-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium disabled:opacity-50 ${
             hasUnsavedChanges
-              ? "bg-emerald-600 text-white shadow hover:bg-emerald-500"
-              : "border border-zinc-400 text-zinc-700 hover:bg-zinc-200 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              ? "border-emerald-600 bg-emerald-600 text-white shadow hover:bg-emerald-500"
+              : "border-zinc-400 text-zinc-700 hover:bg-zinc-200 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
           }`}
         >
           <Save className="h-4 w-4" aria-hidden /> {saving ? "Saving…" : "Save"}
@@ -290,7 +292,12 @@ export function Editor({ chart }: EditorProps) {
           </button>
         )}
 
-        <span className="flex items-center gap-1 text-sm">
+        {/* Reserve space so the status appearing/disappearing doesn't shift
+            the buttons. Invisible dot keeps the line height stable. */}
+        <span className="flex min-w-32 items-center gap-1 text-sm">
+          {!saveError && !savedAt && (
+            <CheckCircle2 className="h-4 w-4 invisible" aria-hidden />
+          )}
           {saveError ? (
             <>
               <AlertCircle className="h-4 w-4 text-red-500" aria-hidden />
