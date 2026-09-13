@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TRANSPOSER
 
-## Getting Started
+Dynamic lead sheet & chord chart manager. Write charts in universal Roman numeral syntax (or absolute chords), transpose live between all 12 keys, and export print-ready PDFs.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 16 (App Router) + TypeScript + Tailwind CSS v4
+- Supabase (Auth email/password + OAuth scaffold, Postgres with RLS)
+- @react-pdf/renderer for PDF export
+- Jest unit tests for the music engine
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Getting started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Install dependencies: `npm install`
+2. Create `.env.local` from `.env.example` with your Supabase project URL + anon key.
+3. Run `supabase/schema.sql` in the Supabase Dashboard → SQL Editor. This creates the `charts` table, `updated_at` trigger, and all RLS policies.
+4. `npm run dev` and open http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Chart syntax (summary)
 
-## Learn More
+| Input | Meaning |
+| --- | --- |
+| `I`, `iv`, `V` | Scale-degree chord; uppercase = major base, lowercase = minor |
+| `IIdim`, `vii°`, `iii+` | Qualities: `dim`, `°`, `ø`, `aug`, `+`, `sus2`, `sus4`, `maj`, `m` |
+| `Imaj7b9`, `13#11`, `7alt`, `9b5`, `add9` | Arbitrary extension/alteration strings pass through verbatim |
+| `I/iii`, `V/vii` | Slash chords — both chord and bass are Roman numerals and transpose |
+| `Cmaj7`, `Bb/D` | Absolute chords also accepted; transposed by interval from the chart's original key |
+| `My song[I] has not[iv]` | Inline lyric brackets — chords render above the words |
+| `\| I \| vi \| IIdim \| IV \|` | Grid mode — bar-separated chart lines |
 
-To learn more about Next.js, take a look at the following resources:
+The 12 target keys: C (neutral), F Bb Eb Ab Db (flats), G D A E B F# (sharps). Output spelling always follows the target key's accidental convention.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev` — dev server
+- `npm run build` / `npm start` — production
+- `npm run lint` — ESLint
+- `npm test` — music engine unit tests
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Repo: `github.com:PelleDelorean/transposer` (SSH)
+- Hosting: Vercel (Hobby). Import the repo, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in project env vars, deploy. Add `https://<project>.vercel.app/auth/callback` to the Supabase redirect allow-list.
