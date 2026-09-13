@@ -212,9 +212,12 @@ export function Editor({ chart }: EditorProps) {
     // and the page scrolls normally. The sticky AppHeader above this div
     // is h-14, so the editor column fills exactly the remaining viewport.
     <div className="flex min-h-screen flex-col md:h-[calc(100dvh-3.5rem)] md:min-h-0 md:overflow-hidden">
-      {/* Sticky toolbar (lighter gray, above pane scrollbars). top-14 keeps
-          it clear of the sticky app header on small screens. */}
-      <div className="sticky top-14 z-20 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-zinc-300 bg-zinc-100 px-4 py-3 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
+      {/* Sticky toolbar (lighter gray, above pane scrollbars). Below md the
+          page scrolls, so it parks under the h-14 app header (top-14); at md+
+          the editor root itself is the (non-scrolling) scroll container, so
+          the offset must be 0 or sticky pushes it 3.5rem down, leaving a gap
+          and covering the pane headers. */}
+      <div className="sticky top-14 z-20 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-zinc-300 bg-zinc-100 px-4 py-3 text-zinc-900 md:top-0 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100">
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
