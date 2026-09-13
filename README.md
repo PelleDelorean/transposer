@@ -40,4 +40,19 @@ The 12 target keys: C (neutral), F Bb Eb Ab Db (flats), G D A E B F# (sharps). O
 ## Deployment
 
 - Repo: `github.com:PelleDelorean/transposer` (SSH)
-- Hosting: Vercel (Hobby). Import the repo, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in project env vars, deploy. Add `https://<project>.vercel.app/auth/callback` to the Supabase redirect allow-list.
+- Hosting: Vercel (Hobby). Import the repo, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in project env vars, deploy. Add `https://<project>.vercel.app/auth/callback` to the Supabase redirect allow-list.
+
+## API keys
+
+Supabase is replacing the legacy JWT-based keys (anon / service_role) with
+new-format opaque keys:
+
+| New key | Replaces | Exposure |
+| --- | --- | --- |
+| `sb_publishable_...` | anon key | Safe for browsers, `NEXT_PUBLIC_` |
+| `sb_secret_...` | service_role key | Server-only, never in the browser |
+
+This app only needs the publishable key (all DB access goes through RLS via
+the user's session). Set `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; the code
+falls back to `NEXT_PUBLIC_SUPABASE_ANON_KEY` if your project still uses
+legacy keys. The secret key is not used anywhere in this app.

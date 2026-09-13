@@ -22,7 +22,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     const { createClient } = await import("@supabase/supabase-js");
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      // New-format key (sb_publishable_...) or legacy anon key.
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     );
 
     if (mode === "signup") {
@@ -49,7 +51,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     const { createClient } = await import("@supabase/supabase-js");
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      // New-format key (sb_publishable_...) or legacy anon key.
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     );
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
