@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Music2 } from "lucide-react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
@@ -13,24 +14,47 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Email links use the implicit flow: the session arrives in the URL hash
+  // (#access_token=...), which never reaches the server. detectSessionInUrl
+  // picks it up and persistSession writes the cookie-backed storage the
+  // server components and proxy read.
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
+        router.replace("/");
+        router.refresh();
+      }
+    });
+    return () => data.subscription.unsubscribe();
+  }, [router]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setMessage(null);
     setLoading(true);
 
-    const { createClient } = await import("@supabase/supabase-js");
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      // New-format key (sb_publishable_...) or legacy anon key.
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    );
+    // Shared client persists the session to cookies so the server side
+    // (proxy, server components, server actions) can see it.
+    const supabase = getSupabaseBrowserClient();
 
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          // Route the confirmation link back through the app callback,
+          // same handler the OAuth flow uses.
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
       if (error) {
         setError(error.message);
+      } else if (data.session) {
+        // Email confirmation disabled: the user is signed in immediately.
+        router.push("/");
+        router.refresh();
       } else {
         setMessage("Check your email for a confirmation link, then sign in.");
       }
@@ -48,13 +72,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   async function handleOAuth(provider: "google" | "github") {
     setError(null);
-    const { createClient } = await import("@supabase/supabase-js");
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      // New-format key (sb_publishable_...) or legacy anon key.
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    );
+    const supabase = getSupabaseBrowserClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo: `${window.location.origin}/auth/callback` },
@@ -66,7 +84,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     <div className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center px-6">
       <div className="mb-8 flex items-center gap-2 text-2xl font-bold">
         <Music2 className="h-7 w-7" aria-hidden />
-        TRANSPOSER
+        CHARTMAKER
       </div>
 
       <h1 className="mb-6 text-xl font-semibold">

@@ -1,4 +1,4 @@
-# TRANSPOSER
+# CHARTMAKER
 
 Dynamic lead sheet & chord chart manager. Write charts in universal Roman numeral syntax (or absolute chords), transpose live between all 12 keys, and export print-ready PDFs.
 
@@ -25,8 +25,10 @@ Dynamic lead sheet & chord chart manager. Write charts in universal Roman numera
 | `Imaj7b9`, `13#11`, `7alt`, `9b5`, `add9` | Arbitrary extension/alteration strings pass through verbatim |
 | `I/iii`, `V/vii` | Slash chords — both chord and bass are Roman numerals and transpose |
 | `Cmaj7`, `Bb/D` | Absolute chords also accepted; transposed by interval from the chart's original key |
-| `My song[I] has not[iv]` | Inline lyric brackets — chords render above the words |
+| `My song[I] has not[iv]` | Inline lyric brackets — a chord applies to the word BEFORE the bracket and renders above it |
 | `\| I \| vi \| IIdim \| IV \|` | Grid mode — bar-separated chart lines |
+
+The **Grid / Lyrics** toggle in the editor switches only the *display* of the same markup (chords-only vs. chords above words); your chart text is never modified. The chosen mode also applies to PDF export.
 
 The 12 target keys: C (neutral), F Bb Eb Ab Db (flats), G D A E B F# (sharps). Output spelling always follows the target key's accidental convention.
 

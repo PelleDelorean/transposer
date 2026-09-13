@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata = {
-  title: "Syntax guide — TRANSPOSER",
+  title: "Syntax guide — CHARTMAKER",
 };
 
 const sections = [
@@ -83,8 +83,8 @@ const sections = [
     body: (
       <>
         <p>
-          Charts may mix numerals with absolute chord names (e.g.{" "}
-          <Code>Cmaj7</Code>, <Code>Bb/D</Code>). Absolute chords transpose by
+          Charts may mix numerals with absolute chord names, e.g.{" "}
+          <Code>Cmaj7</Code>, <Code>Bb/D</Code>Absolute chords transpose by
           the interval between the chart&rsquo;s <em>original key</em> and the
           target key, and are respelled to match the target key&rsquo;s
           accidental convention.
@@ -130,11 +130,18 @@ const sections = [
     body: (
       <>
         <p>
-          Put chords in square brackets directly before the syllable or word
-          they land on. Switch the editor to <strong>Lyrics mode</strong> to
-          see chords rendered above the words.
+          Put chords in square brackets directly after the syllable or word
+          they belong to — the chord is rendered above that word. Switch the
+          editor to <strong>Lyrics mode</strong> to see the chord-over-lyric
+          layout.
         </p>
         <Code>My song[I] has not a lot of[iv] lines[VI]</Code>
+        <p>
+          Here <code>I</code> sits above &ldquo;song&rdquo;, <code>iv</code>{" "}
+          above &ldquo;of&rdquo;, and <code>VI</code> above
+          &ldquo;lines&rdquo;. A bracket at the very start of a line anchors
+          above the position where the following text begins.
+        </p>
       </>
     ),
   },
@@ -149,6 +156,15 @@ const sections = [
           through untouched.
         </p>
         <Code>| I | vi | IIdim | IV |</Code>
+        <p>
+          The <strong>Grid / Lyrics</strong> toggle in the editor only changes
+          how the same markup is <em>displayed</em> — your chart text is never
+          modified. <strong>Grid</strong> shows a chords-only view (every line
+          reduced to its chord sequence, with section labels kept for
+          structure). <strong>Lyrics</strong> shows chords positioned above
+          the words they belong to. The chosen mode is also used when
+          exporting the chart as a PDF.
+        </p>
       </>
     ),
   },
@@ -174,7 +190,7 @@ export default function DocsPage() {
 
       <h1 className="mb-2 text-3xl font-bold">Syntax guide</h1>
       <p className="mb-8 text-zinc-600 dark:text-zinc-400">
-        How TRANSPOSER parses and transposes your charts.
+        How CHARTMAKER parses and transposes your charts.
       </p>
 
       <div className="space-y-10">

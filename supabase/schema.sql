@@ -1,4 +1,4 @@
--- TRANSPOSER schema
+-- CHARTMAKER schema
 -- Run in Supabase Dashboard -> SQL Editor
 
 create table if not exists public.charts (

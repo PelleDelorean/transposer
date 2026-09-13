@@ -40,14 +40,12 @@ export async function GET(
 
   const result = transposeChart(chart.content, {
     targetKey,
-    originalKey: chart.original_key,
     mode,
   });
 
   const doc = (
     <ChartPdfDocument
       title={chart.title}
-      originalKey={chart.original_key}
       targetKey={targetKey}
       mode={mode}
       lines={result.lines}

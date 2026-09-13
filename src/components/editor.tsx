@@ -106,7 +106,10 @@ export function Editor({ chart }: EditorProps) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    // h-dvh + overflow-hidden on md+ bounds the layout to the viewport so
+    // the two panes scroll independently; on small screens the panes stack
+    // and the page scrolls normally.
+    <div className="flex min-h-screen flex-col md:h-dvh md:min-h-0 md:overflow-hidden">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
         <input
@@ -200,25 +203,25 @@ export function Editor({ chart }: EditorProps) {
       </div>
 
       {/* Split view */}
-      <div className="grid flex-1 grid-cols-1 divide-y divide-zinc-200 md:grid-cols-2 md:divide-x md:divide-y-0 dark:divide-zinc-800">
-        <div className="p-4">
-          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+      <div className="grid flex-1 grid-cols-1 divide-y divide-zinc-200 md:min-h-0 md:grid-cols-2 md:divide-x md:divide-y-0 dark:divide-zinc-800">
+        <div className="flex min-h-0 flex-col p-4">
+          <h2 className="mb-2 shrink-0 text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Chart markup
           </h2>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             spellCheck={false}
-            className="h-[calc(100vh-9rem)] w-full resize-none rounded-md border border-zinc-300 bg-transparent p-3 font-mono text-sm focus:outline-none dark:border-zinc-700"
+            className="w-full flex-1 resize-none rounded-md border border-zinc-300 bg-transparent p-3 font-mono text-sm leading-6 focus:outline-none md:min-h-0 dark:border-zinc-700"
           />
         </div>
-        <div className="overflow-auto p-4">
+        <div className="md:min-h-0 md:overflow-y-auto p-4">
           <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Preview — {targetKey}
             {originalKey !== targetKey && originalKey ? ` (from ${originalKey})` : ""}
           </h2>
           {result ? (
-            <ChartPreview lines={result.lines} />
+            <ChartPreview lines={result.lines} mode={mode} />
           ) : (
             <p className="text-sm text-red-600 dark:text-red-400">
               Could not render preview.

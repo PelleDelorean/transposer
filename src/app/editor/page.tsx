@@ -27,7 +27,7 @@ export default async function EditorPage({
 
   return (
     <>
-      <AppHeader user={user} />
+      <AppHeader />
       <Editor chart={chart} />
     </>
   );
