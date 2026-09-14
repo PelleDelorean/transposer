@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Music2 } from "lucide-react";
+import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import Image from "next/image";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,6 +40,17 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     // Shared client persists the session to cookies so the server side
     // (proxy, server components, server actions) can see it.
     const supabase = getSupabaseBrowserClient();
+    // The onAuthStateChange listener (or router.push below) triggers a
+    // navigation; don't reset loading on unmount.
+    let navigated = false;
+    const navigate = () => {
+      if (navigated) return;
+      navigated = true;
+      // Deliberately leave `loading` true: the button must stay disabled
+      // with its spinner until the router actually swaps the page.
+      router.push("/");
+      router.refresh();
+    };
 
     if (mode === "signup") {
       const { data, error } = await supabase.auth.signUp({
@@ -53,24 +66,27 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         setError(error.message);
       } else if (data.session) {
         // Email confirmation disabled: the user is signed in immediately.
-        router.push("/");
-        router.refresh();
+        navigate();
       } else {
         setMessage("Check your email for a confirmation link, then sign in.");
       }
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       if (error) {
         setError(error.message);
       } else {
-        router.push("/");
-        router.refresh();
+        navigate();
       }
     }
-    setLoading(false);
+    // Only reset when we truly stayed on the page (error or "check your
+    // email" message); on success the navigation keeps the spinner up.
+    if (!navigated) setLoading(false);
   }
 
-  async function handleOAuth(provider: "google" | "github") {
+  async function handleOAuth(provider: "google") {
     setError(null);
     const supabase = getSupabaseBrowserClient();
     const { error } = await supabase.auth.signInWithOAuth({
@@ -82,10 +98,17 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center px-6">
-      <div className="mb-8 flex items-center gap-2 text-2xl">
-        <Music2 className="h-7 w-7" aria-hidden />
-        <span className="font-[family-name:var(--font-bungee-shade)]">
-          CHARTMAKER
+      <div className="mb-8 flex justify-center gap-2 text-2xl">
+        <span className="font-(family-name:--font-bungee-shade) flex items-center gap-2 max-w-fit">
+          <Image
+            src="/favicon.svg"
+            alt=""
+            width={50}
+            height={50}
+            unoptimized
+            className="rounded"
+          />
+          TRANSPOSER
         </span>
       </div>
 
@@ -111,25 +134,44 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           <label htmlFor="password" className="mb-1 block text-sm font-medium">
             Password
           </label>
-          <input
-            id="password"
-            type="password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 text-sm dark:border-zinc-700"
-          />
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-md border border-zinc-300 bg-transparent px-3 py-2 pr-10 text-sm dark:border-zinc-700"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
         </div>
 
-        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-        {message && <p className="text-sm text-emerald-600 dark:text-emerald-400">{message}</p>}
+        {error && (
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        )}
+        {message && (
+          <p className="text-sm text-emerald-600 dark:text-emerald-400">
+            {message}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+          className="flex w-full items-center justify-center gap-2 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
         >
+          {loading && (
+            <LoaderCircle size={16} className="animate-spin" aria-hidden />
+          )}
           {loading ? "Working…" : mode === "login" ? "Sign in" : "Sign up"}
         </button>
       </form>
@@ -140,8 +182,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <span className="h-px flex-1 bg-zinc-300 dark:bg-zinc-700" />
       </div>
 
-      {/* OAuth scaffold — enable providers in the Supabase dashboard, these
-          buttons then work without code changes. */}
+      {/* Google OAuth — enable the provider in the Supabase dashboard
+          (Authentication → Providers → Google) and this button works. */}
       <div className="space-y-2">
         <button
           type="button"
@@ -149,13 +191,6 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           className="w-full rounded-md border border-zinc-300 px-4 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
         >
           Continue with Google
-        </button>
-        <button
-          type="button"
-          onClick={() => handleOAuth("github")}
-          className="w-full rounded-md border border-zinc-300 px-4 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-        >
-          Continue with GitHub
         </button>
       </div>
 
